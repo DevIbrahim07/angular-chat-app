@@ -1,0 +1,26 @@
+<li
+  class="flex"
+  [class.justify-end]="message.sender === currentUser"
+  [class.justify-start]="message.sender !== currentUser"
+  [attr.data-message-id]="message._id"
+  [attr.data-is-own]="message.sender === currentUser"
+>
+  <div
+    [class.bg-gray-200]="message.sender !== currentUser"
+    [class.bg-blue-500]="message.sender === currentUser"
+    [class.text-white]="message.sender === currentUser"
+    class="px-3.5 py-2.5 rounded-2xl max-w-xs"
+  >
+    <span class="font-bold text-xs block mb-1">{{ message.sender }}</span>
+    <p class="m-0">{{ message.message }}</p>
+
+    <!-- Status icon and read info (only for sent messages) -->
+    @if (message.sender === currentUser) {
+      <div class="flex items-center gap-1 mt-1 text-xs" [attr.title]="getReadByLabel()">
+        <span [class.text-blue-300]="isStatusRead()">
+          {{ getStatusIcon() }}
+        </span>
+      </div>
+    }
+  </div>
+</li>

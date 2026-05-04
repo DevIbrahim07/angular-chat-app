@@ -1,0 +1,5 @@
+<ul class="list-none m-0 p-0 flex flex-col gap-2 flex-1">
+  @for (msg of messages; track msg.clientId ?? msg._id ?? $index) {
+    <app-message-item [message]="msg" [currentUser]="currentUser"></app-message-item>
+  }
+</ul>

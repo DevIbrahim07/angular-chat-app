@@ -1,0 +1,17 @@
+<div class="flex gap-2.5">
+  <input
+    type="text"
+    [(ngModel)]="message"
+    placeholder="Type message..."
+    class="flex-1 px-2.5 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500"
+    (keyup.enter)="onSend()"
+    (keydown)="onInputKeydown()"
+    (blur)="onInputBlur()"
+  />
+  <button
+    (click)="onSend()"
+    class="px-4 py-2.5 border-0 rounded-full bg-blue-500 text-white cursor-pointer hover:bg-blue-600 font-medium"
+  >
+    Send
+  </button>
+</div>

@@ -1,0 +1,74 @@
+<main class="min-h-screen grid place-items-center px-3 py-6 sm:px-6 sm:py-8 bg-blue-50">
+  <section class="w-full max-w-2xl p-4 sm:p-7 border border-blue-100 rounded-lg bg-white shadow-lg">
+    <div class="flex flex-col sm:flex-row sm:justify-between gap-4 mb-6">
+      <div>
+        <p class="m-0 mb-1.5 text-blue-600 text-xs font-bold uppercase">Your profile</p>
+        <h1 class="m-0 text-gray-900 text-xl sm:text-2xl">{{ currentUser()?.username }}</h1>
+      </div>
+      <a routerLink="/chat" class="text-blue-600 font-bold no-underline self-start sm:self-auto"
+        >Back to chat</a
+      >
+    </div>
+
+    <form class="grid gap-4" (ngSubmit)="onSubmit()">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <img
+          [src]="avatarPreview"
+          alt="Profile avatar preview"
+          class="w-16 h-16 sm:w-19 sm:h-19 rounded-full border border-gray-300 object-cover bg-blue-100 shrink-0"
+        />
+
+        <label class="flex-1 grid gap-1.75 text-gray-700 text-sm font-bold">
+          <span>Avatar image</span>
+          <input
+            type="file"
+            name="avatar"
+            accept="image/*"
+            (change)="onAvatarSelected($event)"
+            class="px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm"
+          />
+        </label>
+      </div>
+
+      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
+        <span>Display name</span>
+        <input
+          type="text"
+          name="displayName"
+          [(ngModel)]="displayName"
+          maxlength="50"
+          placeholder="Name shown in the user list"
+          class="w-full px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm focus:outline-blue-300 focus:border-blue-600"
+        />
+      </label>
+
+      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
+        <span>Bio</span>
+        <textarea
+          name="bio"
+          [(ngModel)]="bio"
+          maxlength="160"
+          rows="4"
+          placeholder="A short note about you"
+          class="w-full px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm focus:outline-blue-300 focus:border-blue-600 resize-vertical"
+        ></textarea>
+      </label>
+
+      @if (errorMessage()) {
+        <p class="m-0 text-red-700 text-sm">{{ errorMessage() }}</p>
+      }
+
+      @if (successMessage()) {
+        <p class="m-0 text-green-700 text-sm">{{ successMessage() }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting()"
+        class="px-4 py-3 border-0 rounded-md bg-blue-600 text-white font-bold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 hover:bg-blue-700"
+      >
+        {{ isSubmitting() ? 'Saving...' : 'Save profile' }}
+      </button>
+    </form>
+  </section>
+</main>

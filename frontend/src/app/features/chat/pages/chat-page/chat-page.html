@@ -1,0 +1,100 @@
+<div class="flex flex-col h-screen bg-gray-100">
+  <header
+    class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-300 bg-white"
+  >
+    <div>
+      <p class="m-0 mb-0.5 text-gray-500 text-xs font-bold uppercase">Signed in as</p>
+      <h1 class="m-0 text-gray-900 text-xl leading-tight">
+        {{ currentUser()?.profile?.displayName || currentUser()?.username }}
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a routerLink="/profile" class="text-blue-600 font-bold no-underline">Profile</a>
+      <button
+        type="button"
+        class="px-3 py-2 border border-gray-300 rounded bg-white text-gray-700 font-bold cursor-pointer hover:bg-gray-50"
+        (click)="logout()"
+      >
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 min-h-0 flex">
+    <aside
+      class="w-full sm:w-80 sm:min-w-64 md:w-96 flex flex-col border-r border-gray-300 bg-white overflow-y-auto sm:flex"
+      [class.hidden]="activeConversationId()"
+    >
+      <app-user-list
+        [users]="users()"
+        [currentUserId]="currentUser()?._id || ''"
+        (startConversation)="startConversation($event)"
+      ></app-user-list>
+    </aside>
+
+    <section
+      class="w-full flex-1 min-w-0 hidden flex-col sm:flex"
+      [class.hidden]="!activeConversationId()"
+      [class.flex]="activeConversationId()"
+    >
+      @if (activeConversationId()) {
+        <header class="flex items-center gap-3 px-3 py-3 border-b border-gray-200 bg-white">
+          <button
+            type="button"
+            aria-label="Back to users"
+            class="sm:hidden border-0 bg-transparent text-xl cursor-pointer p-1.5 hover:bg-gray-100 rounded"
+            (click)="backToUsers()"
+          >
+            &larr;
+          </button>
+
+          <div class="flex items-center gap-3">
+            <img
+              class="w-10 h-10 rounded-full object-cover border border-gray-200"
+              [src]="avatarUrl(selectedUser())"
+              alt="avatar"
+            />
+
+            <div>
+              <div class="font-bold text-gray-900">
+                {{ selectedUser()?.profile?.displayName || selectedUser()?.username }}
+              </div>
+              <div class="text-xs text-gray-500">{{ statusLabel(selectedUser()) }}</div>
+            </div>
+          </div>
+
+          <div class="flex-1"></div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-2.5" #scrollContainer>
+          <app-message-list
+            [messages]="messages()"
+            [currentUser]="currentUser()?.username || ''"
+          ></app-message-list>
+        </div>
+
+        @if (getTypingUsersLabel()) {
+          <div
+            class="px-2.5 py-2 border-t border-gray-200 bg-white text-xs text-gray-500 italic min-h-6 flex items-center"
+          >
+            <p class="m-0 animate-pulse">{{ getTypingUsersLabel() }}</p>
+          </div>
+        }
+
+        <div class="p-2.5 border-t border-gray-300 bg-white">
+          <app-message-input
+            (sendMessage)="send($event)"
+            (userTyping)="onUserTyping()"
+            (stopTyping)="onStopTyping()"
+          ></app-message-input>
+        </div>
+      } @else {
+        <div class="flex-1 grid place-content-center gap-2 p-6 text-center text-gray-500">
+          <h2 class="m-0 text-gray-900 text-2xl">Select a user</h2>
+          <p class="m-0">Choose someone from the user list to start chatting.</p>
+        </div>
+      }
+    </section>
+  </main>
+</div>

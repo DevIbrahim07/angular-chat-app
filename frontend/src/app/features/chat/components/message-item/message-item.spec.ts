@@ -1,0 +1,26 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { MessageItem } from './message-item';
+
+describe('MessageItem', () => {
+  let component: MessageItem;
+  let fixture: ComponentFixture<MessageItem>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MessageItem],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MessageItem);
+    component = fixture.componentInstance;
+    component.message = {
+      sender: 'Ibrahim',
+      message: 'Hello',
+    };
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

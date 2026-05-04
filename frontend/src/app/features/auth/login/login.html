@@ -1,0 +1,53 @@
+<main class="min-h-screen grid place-items-center px-6 py-8 bg-blue-50">
+  <section class="w-full max-w-sm p-7 border border-blue-100 rounded-lg bg-white shadow-lg">
+    <div class="mb-6">
+      <p class="m-0 mb-1.5 text-blue-600 text-xs font-bold uppercase">Welcome back</p>
+      <h1 class="m-0 text-gray-900 text-3xl leading-tight">Log in to chat</h1>
+    </div>
+
+    <form class="grid gap-4" (ngSubmit)="onSubmit()">
+      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
+        <span>Email</span>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          autocomplete="email"
+          required
+          placeholder="you@example.com"
+          class="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-blue-300 focus:border-blue-600"
+        />
+      </label>
+
+      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
+        <span>Password</span>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          autocomplete="current-password"
+          required
+          placeholder="Your password"
+          class="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-blue-300 focus:border-blue-600"
+        />
+      </label>
+
+      @if (errorMessage()) {
+        <p class="m-0 text-red-700 text-sm">{{ errorMessage() }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting()"
+        class="px-4 py-3 border-0 rounded-md bg-blue-600 text-white font-bold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 hover:bg-blue-700"
+      >
+        {{ isSubmitting() ? 'Logging in...' : 'Log in' }}
+      </button>
+    </form>
+
+    <p class="mt-4.5 text-center text-gray-600">
+      New here?
+      <a routerLink="/signup" class="text-blue-600 font-bold no-underline">Create an account</a>
+    </p>
+  </section>
+</main>
