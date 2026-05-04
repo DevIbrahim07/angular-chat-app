@@ -1,100 +1,157 @@
-<div class="flex flex-col h-screen bg-gray-100">
-  <header
-    class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-300 bg-white"
-  >
-    <div>
-      <p class="m-0 mb-0.5 text-gray-500 text-xs font-bold uppercase">Signed in as</p>
-      <h1 class="m-0 text-gray-900 text-xl leading-tight">
-        {{ currentUser()?.profile?.displayName || currentUser()?.username }}
-      </h1>
-    </div>
+<div class="flex h-screen flex-col bg-[#0b141a]">
+  <header class="border-b border-slate-800 bg-[#111b21] px-4 py-3 text-white sm:px-5">
+    <div class="mx-auto flex w-full max-w-400 items-center justify-between gap-4">
+      <div class="min-w-0">
+        <h1 class="m-0 truncate text-xl font-semibold leading-tight text-white">
+          {{ currentUser()?.profile?.displayName || currentUser()?.username }}
+        </h1>
+      </div>
 
-    <div class="flex items-center gap-3">
-      <a routerLink="/profile" class="text-blue-600 font-bold no-underline">Profile</a>
-      <button
-        type="button"
-        class="px-3 py-2 border border-gray-300 rounded bg-white text-gray-700 font-bold cursor-pointer hover:bg-gray-50"
-        (click)="logout()"
-      >
-        Logout
-      </button>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a
+          routerLink="/profile"
+          class="rounded-full px-3 py-2 text-sm font-semibold text-emerald-300 no-underline transition hover:bg-white/5 hover:text-emerald-200"
+        >
+          Profile
+        </a>
+        <button
+          type="button"
+          class="rounded-full border border-slate-700 bg-slate-900/40 px-4 py-2 text-sm font-semibold text-white transition hover:border-slate-600 hover:bg-slate-800"
+          (click)="openLogoutModal()"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="flex-1 min-h-0 flex">
-    <aside
-      class="w-full sm:w-80 sm:min-w-64 md:w-96 flex flex-col border-r border-gray-300 bg-white overflow-y-auto sm:flex"
-      [class.hidden]="activeConversationId()"
+  <main class="min-h-0 flex-1 bg-[#0b141a] px-0 sm:px-4 sm:py-4">
+    <div
+      class="mx-auto flex h-full w-full max-w-400 overflow-hidden bg-[#efeae2] sm:rounded-lg sm:border sm:border-slate-800 sm:shadow-2xl"
     >
-      <app-user-list
-        [users]="users()"
-        [currentUserId]="currentUser()?._id || ''"
-        (startConversation)="startConversation($event)"
-      ></app-user-list>
-    </aside>
+      <aside
+        class="w-full overflow-y-auto border-r border-slate-200 bg-[#f0f2f5] sm:flex sm:w-80 sm:min-w-72 md:w-104"
+        [class.hidden]="activeConversationId()"
+      >
+        <app-user-list
+          [users]="users()"
+          [currentUserId]="currentUser()?._id || ''"
+          (startConversation)="startConversation($event)"
+        ></app-user-list>
+      </aside>
 
-    <section
-      class="w-full flex-1 min-w-0 hidden flex-col sm:flex"
-      [class.hidden]="!activeConversationId()"
-      [class.flex]="activeConversationId()"
-    >
-      @if (activeConversationId()) {
-        <header class="flex items-center gap-3 px-3 py-3 border-b border-gray-200 bg-white">
-          <button
-            type="button"
-            aria-label="Back to users"
-            class="sm:hidden border-0 bg-transparent text-xl cursor-pointer p-1.5 hover:bg-gray-100 rounded"
-            (click)="backToUsers()"
+      <section
+        class="hidden min-w-0 flex-1 flex-col bg-[#efeae2] sm:flex"
+        [class.hidden]="!activeConversationId()"
+        [class.flex]="activeConversationId()"
+      >
+        @if (activeConversationId()) {
+          <header
+            class="flex items-center gap-3 border-b border-slate-200 bg-[#f0f2f5] px-3 py-3 shadow-sm sm:px-5"
           >
-            &larr;
-          </button>
+            <button
+              type="button"
+              aria-label="Back to users"
+              class="grid h-10 w-10 place-items-center rounded-full border-0 bg-transparent text-2xl text-slate-700 transition hover:bg-white/70 sm:hidden"
+              (click)="backToUsers()"
+            >
+              &larr;
+            </button>
 
-          <div class="flex items-center gap-3">
-            <img
-              class="w-10 h-10 rounded-full object-cover border border-gray-200"
-              [src]="avatarUrl(selectedUser())"
-              alt="avatar"
-            />
+            <div class="flex min-w-0 items-center gap-3">
+              <img
+                class="h-11 w-11 rounded-full object-cover ring-1 ring-slate-200"
+                [src]="avatarUrl(selectedUser())"
+                alt="avatar"
+              />
 
-            <div>
-              <div class="font-bold text-gray-900">
-                {{ selectedUser()?.profile?.displayName || selectedUser()?.username }}
+              <div class="min-w-0">
+                <div class="truncate text-[15px] font-semibold text-slate-900">
+                  {{ selectedUser()?.profile?.displayName || selectedUser()?.username }}
+                </div>
+                <div class="truncate text-xs text-slate-500">{{ statusLabel(selectedUser()) }}</div>
               </div>
-              <div class="text-xs text-gray-500">{{ statusLabel(selectedUser()) }}</div>
             </div>
+
+            <div class="flex-1"></div>
+          </header>
+
+          <div
+            class="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.7),rgba(239,234,226,0.92)_42%,rgba(233,228,220,1)_100%)] px-2 py-3 sm:px-4"
+            #scrollContainer
+          >
+            <app-message-list
+              [messages]="messages()"
+              [currentUser]="currentUser()?.username || ''"
+            ></app-message-list>
           </div>
 
-          <div class="flex-1"></div>
-        </header>
+          @if (getTypingUsersLabel()) {
+            <div class="border-t border-slate-200 bg-white/90 px-4 py-2 backdrop-blur-sm">
+              <p
+                class="m-0 inline-flex max-w-full animate-pulse items-center rounded-full bg-emerald-50 px-3 py-1.5 text-xs italic text-emerald-700 shadow-sm"
+              >
+                <span class="truncate">{{ getTypingUsersLabel() }}</span>
+              </p>
+            </div>
+          }
 
-        <div class="flex-1 overflow-y-auto p-2.5" #scrollContainer>
-          <app-message-list
-            [messages]="messages()"
-            [currentUser]="currentUser()?.username || ''"
-          ></app-message-list>
-        </div>
-
-        @if (getTypingUsersLabel()) {
-          <div
-            class="px-2.5 py-2 border-t border-gray-200 bg-white text-xs text-gray-500 italic min-h-6 flex items-center"
-          >
-            <p class="m-0 animate-pulse">{{ getTypingUsersLabel() }}</p>
+          <div class="border-t border-slate-200 bg-[#f0f2f5] px-3 py-3 sm:px-4">
+            <app-message-input
+              (sendMessage)="send($event)"
+              (userTyping)="onUserTyping()"
+              (stopTyping)="onStopTyping()"
+            ></app-message-input>
+          </div>
+        } @else {
+          <div class="grid flex-1 place-content-center gap-3 p-8 text-center text-slate-500">
+            <div
+              class="mx-auto grid h-18 w-18 place-items-center rounded-full bg-white/80 shadow-sm"
+            >
+              <span class="text-3xl text-emerald-600">&#9993;</span>
+            </div>
+            <h2 class="m-0 text-2xl font-semibold text-slate-900">Select a chat</h2>
+            <p class="m-0 max-w-md text-sm leading-6">
+              Pick someone from the list to start messaging in a cleaner WhatsApp-style layout.
+            </p>
           </div>
         }
-
-        <div class="p-2.5 border-t border-gray-300 bg-white">
-          <app-message-input
-            (sendMessage)="send($event)"
-            (userTyping)="onUserTyping()"
-            (stopTyping)="onStopTyping()"
-          ></app-message-input>
-        </div>
-      } @else {
-        <div class="flex-1 grid place-content-center gap-2 p-6 text-center text-gray-500">
-          <h2 class="m-0 text-gray-900 text-2xl">Select a user</h2>
-          <p class="m-0">Choose someone from the user list to start chatting.</p>
-        </div>
-      }
-    </section>
+      </section>
+    </div>
   </main>
+
+  @if (showLogoutModal()) {
+    <div class="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 px-4 backdrop-blur-sm">
+      <div
+        class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-dialog-title"
+      >
+        <h2 id="logout-dialog-title" class="m-0 text-xl font-semibold text-slate-900">
+          Log out?
+        </h2>
+        <p class="mb-0 mt-3 text-sm leading-6 text-slate-600">
+          You will be signed out of your current session and returned to the login screen.
+        </p>
+
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            (click)="closeLogoutModal()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="rounded-full border-0 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            (click)="confirmLogout()"
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

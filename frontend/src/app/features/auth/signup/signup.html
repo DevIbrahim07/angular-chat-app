@@ -1,68 +1,104 @@
-<main class="min-h-screen grid place-items-center px-6 py-8 bg-blue-50">
-  <section class="w-full max-w-sm p-7 border border-blue-100 rounded-lg bg-white shadow-lg">
-    <div class="mb-6">
-      <p class="m-0 mb-1.5 text-blue-600 text-xs font-bold uppercase">Start chatting</p>
-      <h1 class="m-0 text-gray-900 text-3xl">Create account</h1>
+<main class="grid min-h-screen place-items-center bg-[#0b141a] px-4 py-6 sm:px-6 sm:py-10">
+  <section
+    class="mx-auto grid w-full max-w-5xl overflow-hidden rounded-lg border border-slate-800 bg-[#111b21] shadow-2xl lg:grid-cols-[0.95fr_1.05fr]"
+  >
+    <div class="bg-[#f0f2f5] p-5 sm:p-8 lg:p-10">
+      <div class="mx-auto w-full max-w-md">
+        <div class="mb-8">
+          <p
+            class="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700"
+          >
+            Start chatting
+          </p>
+          <h1 class="m-0 text-3xl font-semibold text-slate-900">Create account</h1>
+        </div>
+
+        <form class="grid gap-4" (ngSubmit)="onSubmit()">
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Username</span>
+            <input
+              type="text"
+              name="username"
+              [(ngModel)]="username"
+              autocomplete="username"
+              required
+              minlength="3"
+              placeholder="ibrahim"
+              class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
+
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Email</span>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              autocomplete="email"
+              required
+              placeholder="you@example.com"
+              class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
+
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Password</span>
+            <input
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              autocomplete="new-password"
+              required
+              minlength="6"
+              placeholder="At least 6 characters"
+              class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
+
+          @if (errorMessage()) {
+            <p
+              class="m-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              {{ errorMessage() }}
+            </p>
+          }
+
+          <button
+            type="submit"
+            [disabled]="isSubmitting()"
+            class="rounded-lg border-0 bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {{ isSubmitting() ? 'Creating...' : 'Create account' }}
+          </button>
+        </form>
+
+        <p class="mt-5 text-center text-sm text-slate-600">
+          Already have an account?
+          <a routerLink="/login" class="font-semibold text-emerald-700 no-underline">Log in</a>
+        </p>
+      </div>
     </div>
 
-    <form class="grid gap-4" (ngSubmit)="onSubmit()">
-      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
-        <span>Username</span>
-        <input
-          type="text"
-          name="username"
-          [(ngModel)]="username"
-          autocomplete="username"
-          required
-          minlength="3"
-          placeholder="ibrahim"
-          class="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-blue-300 focus:border-blue-600"
-        />
-      </label>
-
-      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
-        <span>Email</span>
-        <input
-          type="email"
-          name="email"
-          [(ngModel)]="email"
-          autocomplete="email"
-          required
-          placeholder="you@example.com"
-          class="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-blue-300 focus:border-blue-600"
-        />
-      </label>
-
-      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
-        <span>Password</span>
-        <input
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          autocomplete="new-password"
-          required
-          minlength="6"
-          placeholder="At least 6 characters"
-          class="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-blue-300 focus:border-blue-600"
-        />
-      </label>
-
-      @if (errorMessage()) {
-        <p class="m-0 text-red-700 text-sm">{{ errorMessage() }}</p>
-      }
-
-      <button
-        type="submit"
-        [disabled]="isSubmitting()"
-        class="px-4 py-3 border-0 rounded-md bg-blue-600 text-white font-bold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 hover:bg-blue-700"
-      >
-        {{ isSubmitting() ? 'Creating...' : 'Create account' }}
-      </button>
-    </form>
-
-    <p class="mt-4.5 text-center text-gray-600">
-      Already have an account?
-      <a routerLink="/login" class="text-blue-600 font-bold no-underline">Log in</a>
-    </p>
+    <div
+      class="hidden bg-[linear-gradient(160deg,#0f3327_0%,#111b21_58%,#0b141a_100%)] p-10 text-white lg:block"
+    >
+      <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+        Create your space
+      </p>
+      <h2 class="mt-4 text-4xl font-semibold leading-tight">
+        Set up your account and start messaging
+      </h2>
+      <p class="mt-4 max-w-md text-sm leading-7 text-slate-300">
+        Build your profile and jump into a more polished chat experience designed for mobile and
+        desktop.
+      </p>
+      <div class="mt-10 rounded-lg border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+        <p class="m-0 text-sm font-medium text-white">Your profile, your identity</p>
+        <p class="mb-0 mt-2 text-sm leading-6 text-slate-300">
+          Add your name and status-friendly details so every conversation feels personal from the
+          start.
+        </p>
+      </div>
+    </div>
   </section>
 </main>

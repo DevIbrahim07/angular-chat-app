@@ -1,25 +1,44 @@
 <li
-  class="flex"
+  class="flex px-2 sm:px-3"
   [class.justify-end]="message.sender === currentUser"
   [class.justify-start]="message.sender !== currentUser"
   [attr.data-message-id]="message._id"
   [attr.data-is-own]="message.sender === currentUser"
 >
   <div
-    [class.bg-gray-200]="message.sender !== currentUser"
-    [class.bg-blue-500]="message.sender === currentUser"
-    [class.text-white]="message.sender === currentUser"
-    class="px-3.5 py-2.5 rounded-2xl max-w-xs"
+    [class.bg-white]="message.sender !== currentUser"
+    [class.border-gray-200]="message.sender !== currentUser"
+    [class.bg-emerald-200]="message.sender === currentUser"
+    [class.border-emerald-300]="message.sender === currentUser"
+    [class.text-slate-900]="message.sender !== currentUser"
+    [class.text-slate-900]="message.sender === currentUser"
+    class="max-w-[85%] rounded-[18px] border px-3.5 py-2.5 shadow-sm sm:max-w-md"
   >
-    <span class="font-bold text-xs block mb-1">{{ message.sender }}</span>
-    <p class="m-0">{{ message.message }}</p>
+    <span
+      class="mb-1 block text-[11px] font-semibold uppercase tracking-wide"
+      [class.text-emerald-900]="message.sender === currentUser"
+      [class.text-slate-500]="message.sender !== currentUser"
+    >
+      {{ message.sender }}
+    </span>
+    <p class="m-0 whitespace-pre-wrap wrap-break-word text-[15px] leading-6">
+      {{ message.message }}
+    </p>
 
-    <!-- Status icon and read info (only for sent messages) -->
     @if (message.sender === currentUser) {
-      <div class="flex items-center gap-1 mt-1 text-xs" [attr.title]="getReadByLabel()">
-        <span [class.text-blue-300]="isStatusRead()">
-          {{ getStatusIcon() }}
-        </span>
+      <div
+        class="mt-2 flex items-center justify-end gap-1 text-[11px] text-emerald-900/70"
+        [attr.title]="getReadByLabel()"
+      >
+        @if (getStatusType() === 'sent') {
+          <span>&#10003;</span>
+        }
+
+        @if (getStatusType() === 'delivered' || getStatusType() === 'read') {
+          <span class="-tracking-widest" [class.text-sky-600]="isStatusRead()">
+            &#10003;&#10003;
+          </span>
+        }
       </div>
     }
   </div>

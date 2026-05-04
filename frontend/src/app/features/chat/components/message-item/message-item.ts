@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 import { MessageModel } from '../../../../models/message.model';
 
 @Component({
@@ -12,14 +12,14 @@ export class MessageItem {
   @Input() currentUser = '';
   @Input() message!: MessageModel;
 
-  getStatusIcon(): string {
+  getStatusType(): 'sent' | 'delivered' | 'read' | '' {
     switch (this.message.status) {
       case 'read':
-        return '✓✓';
+        return 'read';
       case 'delivered':
-        return '✓✓';
+        return 'delivered';
       case 'sent':
-        return '✓';
+        return 'sent';
       default:
         return '';
     }
@@ -41,12 +41,12 @@ export class MessageItem {
         minute: '2-digit',
       });
       return `Read at ${readAt}`;
-    } else {
-      const readAt = new Date(readEntries[readEntries.length - 1].readAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      return `Read by ${readEntries.length} users at ${readAt}`;
     }
+
+    const readAt = new Date(readEntries[readEntries.length - 1].readAt).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `Read by ${readEntries.length} users at ${readAt}`;
   }
 }

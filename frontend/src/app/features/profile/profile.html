@@ -1,74 +1,104 @@
-<main class="min-h-screen grid place-items-center px-3 py-6 sm:px-6 sm:py-8 bg-blue-50">
-  <section class="w-full max-w-2xl p-4 sm:p-7 border border-blue-100 rounded-lg bg-white shadow-lg">
-    <div class="flex flex-col sm:flex-row sm:justify-between gap-4 mb-6">
-      <div>
-        <p class="m-0 mb-1.5 text-blue-600 text-xs font-bold uppercase">Your profile</p>
-        <h1 class="m-0 text-gray-900 text-xl sm:text-2xl">{{ currentUser()?.username }}</h1>
-      </div>
-      <a routerLink="/chat" class="text-blue-600 font-bold no-underline self-start sm:self-auto"
-        >Back to chat</a
+<main class="grid min-h-screen place-items-center bg-[#0b141a] px-4 py-6 sm:px-6 sm:py-10">
+  <section
+    class="mx-auto grid w-full max-w-6xl overflow-hidden rounded-lg border border-slate-800 bg-[#111b21] shadow-2xl lg:grid-cols-[360px_minmax(0,1fr)]"
+  >
+    <div class="border-b border-slate-800 bg-[linear-gradient(165deg,#103529_0%,#111b21_65%,#0b141a_100%)] p-6 text-white lg:border-b-0 lg:border-r">
+      <a
+        routerLink="/chat"
+        class="inline-flex rounded-full px-3 py-1.5 text-sm font-semibold text-emerald-300 no-underline transition hover:bg-white/5"
       >
-    </div>
+        Back to chat
+      </a>
 
-    <form class="grid gap-4" (ngSubmit)="onSubmit()">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div class="mt-6 flex flex-col items-center text-center">
         <img
           [src]="avatarPreview"
           alt="Profile avatar preview"
-          class="w-16 h-16 sm:w-19 sm:h-19 rounded-full border border-gray-300 object-cover bg-blue-100 shrink-0"
+          class="h-24 w-24 rounded-full object-cover ring-4 ring-white/10"
         />
-
-        <label class="flex-1 grid gap-1.75 text-gray-700 text-sm font-bold">
-          <span>Avatar image</span>
-          <input
-            type="file"
-            name="avatar"
-            accept="image/*"
-            (change)="onAvatarSelected($event)"
-            class="px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm"
-          />
-        </label>
+        <h1 class="mb-0 mt-4 text-2xl font-semibold">
+          {{ currentUser()?.profile?.displayName || currentUser()?.username }}
+        </h1>
+        <p class="mt-2 max-w-xs text-sm leading-6 text-slate-300">
+          Update your avatar, display name, and short bio so your chat identity feels complete.
+        </p>
       </div>
+    </div>
 
-      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
-        <span>Display name</span>
-        <input
-          type="text"
-          name="displayName"
-          [(ngModel)]="displayName"
-          maxlength="50"
-          placeholder="Name shown in the user list"
-          class="w-full px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm focus:outline-blue-300 focus:border-blue-600"
-        />
-      </label>
+    <div class="bg-[#f0f2f5] p-5 sm:p-8">
+      <div class="mx-auto w-full max-w-4xl">
+        <div class="mb-8">
+          <p class="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
+            Your profile
+          </p>
+          <h2 class="m-0 text-3xl font-semibold text-slate-900">Personal details</h2>
+        </div>
 
-      <label class="grid gap-1.75 text-gray-700 text-sm font-bold">
-        <span>Bio</span>
-        <textarea
-          name="bio"
-          [(ngModel)]="bio"
-          maxlength="160"
-          rows="4"
-          placeholder="A short note about you"
-          class="w-full px-3 sm:px-3.5 py-2 sm:py-3 border border-gray-300 rounded-md text-gray-900 text-sm focus:outline-blue-300 focus:border-blue-600 resize-vertical"
-        ></textarea>
-      </label>
+        <form class="grid gap-5" (ngSubmit)="onSubmit()">
+          <div class="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+            <img
+              [src]="avatarPreview"
+              alt="Profile avatar preview"
+              class="mx-auto h-20 w-20 rounded-full object-cover ring-1 ring-slate-200 sm:mx-0"
+            />
 
-      @if (errorMessage()) {
-        <p class="m-0 text-red-700 text-sm">{{ errorMessage() }}</p>
-      }
+            <label class="grid gap-2 text-center text-sm font-semibold text-slate-700 sm:text-left">
+              <span>Avatar image</span>
+              <input
+                type="file"
+                name="avatar"
+                accept="image/*"
+                (change)="onAvatarSelected($event)"
+                class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition file:mr-3 file:rounded-full file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-emerald-700"
+              />
+            </label>
+          </div>
 
-      @if (successMessage()) {
-        <p class="m-0 text-green-700 text-sm">{{ successMessage() }}</p>
-      }
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Display name</span>
+            <input
+              type="text"
+              name="displayName"
+              [(ngModel)]="displayName"
+              maxlength="50"
+              placeholder="Name shown in the user list"
+              class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
 
-      <button
-        type="submit"
-        [disabled]="isSubmitting()"
-        class="px-4 py-3 border-0 rounded-md bg-blue-600 text-white font-bold cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 hover:bg-blue-700"
-      >
-        {{ isSubmitting() ? 'Saving...' : 'Save profile' }}
-      </button>
-    </form>
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Bio</span>
+            <textarea
+              name="bio"
+              [(ngModel)]="bio"
+              maxlength="160"
+              rows="4"
+              placeholder="A short note about you"
+              class="w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            ></textarea>
+          </label>
+
+          @if (errorMessage()) {
+            <p class="m-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {{ errorMessage() }}
+            </p>
+          }
+
+          @if (successMessage()) {
+            <p class="m-0 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              {{ successMessage() }}
+            </p>
+          }
+
+          <button
+            type="submit"
+            [disabled]="isSubmitting()"
+            class="rounded-lg border-0 bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {{ isSubmitting() ? 'Saving...' : 'Save profile' }}
+          </button>
+        </form>
+      </div>
+    </div>
   </section>
 </main>

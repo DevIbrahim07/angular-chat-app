@@ -25,6 +25,7 @@ export class ChatPage implements OnInit, OnDestroy {
   conversations = signal<Conversation[]>([]);
   activeConversationId = signal('');
   typingUsers = signal<Set<string>>(new Set()); // Track users typing in current conversation
+  showLogoutModal = signal(false);
   currentUser: AuthService['currentUser'];
   private subscriptions = new Subscription();
   private messagesSubscription?: Subscription;
@@ -308,6 +309,19 @@ export class ChatPage implements OnInit, OnDestroy {
 
   backToUsers(): void {
     this.router.navigate(['/chat']);
+  }
+
+  openLogoutModal(): void {
+    this.showLogoutModal.set(true);
+  }
+
+  closeLogoutModal(): void {
+    this.showLogoutModal.set(false);
+  }
+
+  confirmLogout(): void {
+    this.showLogoutModal.set(false);
+    this.logout();
   }
 
   upsertConversation(conversation: Conversation): void {
