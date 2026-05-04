@@ -1,11 +1,12 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const http = require("http");
 const app = require("./app");
 const { Server } = require("socket.io");
-const dotenv = require("dotenv");
 const server = http.createServer(app);
 const connectDB = require("./config/db");
 const chatSocket = require("./modules/chat/chat.socket");
-dotenv.config();
 connectDB();
 
 // socket setup

@@ -47,6 +47,10 @@ export class SocketService {
     this.socket?.emit('leaveConversation', conversationId);
   }
 
+  markConversationRead(conversationId: string): void {
+    this.socket?.emit('markConversationRead', conversationId);
+  }
+
   receiveMessage(): Observable<MessageModel> {
     return new Observable<MessageModel>((observer) => {
       this.socket?.on('receiveMessage', (msg: MessageModel) => {

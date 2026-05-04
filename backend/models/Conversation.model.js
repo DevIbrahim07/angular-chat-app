@@ -20,6 +20,20 @@ const conversationSchema = new mongoose.Schema(
       ref: "Message",
       default: null,
     },
+    unreadCounts: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        count: {
+          type: Number,
+          default: 0,
+          min: 0,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

@@ -12,6 +12,10 @@ import { UserList } from '../../components/user-list/user-list';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { UsersService } from '../../../../core/services/users.service';
+import {
+  OutgoingMessagePayload,
+} from '../../components/message-input/message-input';
+import { UploadService } from '../../../../core/services/upload.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -31,12 +35,14 @@ export class ChatPage implements OnInit, OnDestroy {
   private messagesSubscription?: Subscription;
   private intersectionObserver?: IntersectionObserver;
   private markedMessagesAsRead = new Set<string>();
+  private browserNotification?: Notification;
 
   constructor(
     private conversationService: ConversationService,
     private socketService: SocketService,
     private authService: AuthService,
     private usersService: UsersService,
+    private uploadService: UploadService,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -59,6 +65,7 @@ export class ChatPage implements OnInit, OnDestroy {
     );
 
     this.socketService.connect(token);
+    this.requestNotificationPermission();
 
     this.subscriptions.add(
       this.route.paramMap.subscribe((params) => {
@@ -109,6 +116,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.socketService.conversationUpdated().subscribe((conversation) => {
+        this.maybeNotifyForConversation(conversation);
         this.upsertConversation(conversation);
       }),
     );
@@ -230,6 +238,7 @@ export class ChatPage implements OnInit, OnDestroy {
     }
 
     this.socketService.joinConversation(conversationId);
+    this.socketService.markConversationRead(conversationId);
     this.messagesSubscription = this.conversationService
       .getMessages(conversationId)
       .subscribe((messages) => {
@@ -266,7 +275,7 @@ export class ChatPage implements OnInit, OnDestroy {
     return `${typingUserNames.join(', ')} are typing...`;
   }
 
-  send(text: string) {
+  send(payload: OutgoingMessagePayload) {
     const user = this.currentUser();
     const conversationId = this.activeConversationId();
 
@@ -281,19 +290,39 @@ export class ChatPage implements OnInit, OnDestroy {
 
     const clientId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const message: MessageModel = {
-      clientId,
-      conversationId,
-      sender: user.username,
-      message: text,
+    const sendMessage = (attachments: MessageModel['attachments'] = []) => {
+      const text = payload.text.trim();
+      const message: MessageModel = {
+        clientId,
+        conversationId,
+        senderId: user._id,
+        sender: user.username,
+        message: text,
+        attachments,
+      };
+
+      this.messages.update((list) => [...list, message]);
+      this.socketService.sendMessage(message);
+      this.onStopTyping();
     };
 
-    // Show the message immediately, then sync it through the socket echo.
-    this.messages.update((list) => [...list, message]);
-    this.socketService.sendMessage(message);
+    if (!payload.file) {
+      if (!payload.text.trim()) {
+        return;
+      }
 
-    // Clear typing indicator
-    this.onStopTyping();
+      sendMessage();
+      return;
+    }
+
+    this.uploadService.uploadAttachment(payload.file).subscribe({
+      next: ({ attachment }) => {
+        sendMessage([attachment]);
+      },
+      error: (error) => {
+        console.error(error.error?.message || 'Unable to upload attachment.');
+      },
+    });
   }
 
   startConversation(user: User): void {
@@ -322,6 +351,31 @@ export class ChatPage implements OnInit, OnDestroy {
   confirmLogout(): void {
     this.showLogoutModal.set(false);
     this.logout();
+  }
+
+  unreadCountsByUser(): Record<string, number> {
+    const currentUser = this.currentUser();
+
+    if (!currentUser) {
+      return {};
+    }
+
+    return this.conversations().reduce<Record<string, number>>((acc, conversation) => {
+      if (conversation.unreadCount <= 0) {
+        return acc;
+      }
+
+      const otherParticipant = conversation.participants.find(
+        (participant) => participant._id !== currentUser._id,
+      );
+
+      if (!otherParticipant) {
+        return acc;
+      }
+
+      acc[otherParticipant._id] = conversation.unreadCount;
+      return acc;
+    }, {});
   }
 
   upsertConversation(conversation: Conversation): void {
@@ -377,6 +431,54 @@ export class ChatPage implements OnInit, OnDestroy {
       this.scrollContainer.nativeElement.scrollTop =
         this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  private requestNotificationPermission(): void {
+    if (typeof Notification === 'undefined') {
+      return;
+    }
+
+    if (Notification.permission !== 'default') {
+      return;
+    }
+
+    void Notification.requestPermission();
+  }
+
+  private maybeNotifyForConversation(conversation: Conversation): void {
+    const currentUser = this.currentUser();
+
+    if (!currentUser || typeof Notification === 'undefined') {
+      return;
+    }
+
+    if (Notification.permission !== 'granted') {
+      return;
+    }
+
+    const previousConversation = this.conversations().find((item) => item._id === conversation._id);
+    const previousUnread = previousConversation?.unreadCount || 0;
+    const nextUnread = conversation.unreadCount || 0;
+    const isOwnMessage = conversation.lastMessage?.senderId === currentUser._id;
+    const isActiveConversation = this.activeConversationId() === conversation._id;
+
+    if (isOwnMessage || nextUnread <= previousUnread || isActiveConversation || !document.hidden) {
+      return;
+    }
+
+    const sender =
+      conversation.participants.find((participant) => participant._id !== currentUser._id) ||
+      this.selectedUser();
+    const senderName = sender?.profile?.displayName || sender?.username || 'New message';
+    const body = conversation.lastMessage?.message || 'You have a new unread message.';
+    const icon = sender ? this.avatarUrl(sender) : undefined;
+
+    this.browserNotification?.close();
+    this.browserNotification = new Notification(senderName, {
+      body,
+      icon,
+      tag: conversation._id,
+    });
   }
 
   logout(): void {

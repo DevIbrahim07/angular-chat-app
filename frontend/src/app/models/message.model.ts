@@ -3,6 +3,16 @@ export interface ReadByEntry {
   readAt: string;
 }
 
+export interface MessageAttachment {
+  originalName: string;
+  url: string;
+  mimeType: string;
+  size: number;
+  storageProvider?: 'local' | 'tigris';
+  storageKey?: string;
+  bucket?: string;
+}
+
 export interface MessageModel {
   _id?: string;
   clientId?: string;
@@ -10,6 +20,7 @@ export interface MessageModel {
   senderId?: string;
   sender: string;
   message: string;
+  attachments?: MessageAttachment[];
   status?: 'sent' | 'delivered' | 'read';
   readBy?: ReadByEntry[];
   createdAt?: string;

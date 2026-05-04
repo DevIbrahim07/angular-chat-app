@@ -38,6 +38,21 @@ const userSchema = new mongoose.Schema(
         default: "/uploads/default-avatar.svg",
         trim: true,
       },
+      avatarStorageProvider: {
+        type: String,
+        enum: ["local", "tigris"],
+        default: "local",
+      },
+      avatarStorageKey: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      avatarOriginalName: {
+        type: String,
+        default: "",
+        trim: true,
+      },
       bio: {
         type: String,
         default: "",

@@ -27,6 +27,39 @@ const messageSchema = new mongoose.Schema({
       readAt: Date,
     },
   ],
+  attachments: [
+    {
+      originalName: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
+      storageProvider: {
+        type: String,
+        enum: ["local", "tigris"],
+        default: "local",
+      },
+      storageKey: {
+        type: String,
+        default: "",
+      },
+      bucket: {
+        type: String,
+        default: "",
+      },
+      mimeType: {
+        type: String,
+        default: "application/octet-stream",
+      },
+      size: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

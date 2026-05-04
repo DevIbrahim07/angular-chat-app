@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const User = require("../../models/User.model");
 const authService = require("./auth.service");
+const serializers = require("../../services/serializers");
 
 const normalizeEmail = (email) =>
   String(email || "")
@@ -58,7 +59,11 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json(authService.createAuthResponse(user));
+    res.status(201).json({
+      token: authService.generateAccessToken(user),
+      refreshToken: authService.generateRefreshToken(user),
+      user: await serializers.serializeUser(user),
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error creating account",
@@ -91,7 +96,11 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    res.status(200).json(authService.createAuthResponse(user));
+    res.status(200).json({
+      token: authService.generateAccessToken(user),
+      refreshToken: authService.generateRefreshToken(user),
+      user: await serializers.serializeUser(user),
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error logging in",

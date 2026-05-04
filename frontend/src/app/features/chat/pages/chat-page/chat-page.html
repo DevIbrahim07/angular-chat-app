@@ -36,6 +36,7 @@
         <app-user-list
           [users]="users()"
           [currentUserId]="currentUser()?._id || ''"
+          [unreadCountsByUser]="unreadCountsByUser()"
           (startConversation)="startConversation($event)"
         ></app-user-list>
       </aside>

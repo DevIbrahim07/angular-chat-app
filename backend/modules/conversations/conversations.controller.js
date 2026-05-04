@@ -1,6 +1,6 @@
 const Conversation = require("../../models/Conversation.model");
 const Message = require("../../models/Message.model");
-const usersController = require("../users/users.controller");
+const serializers = require("../../services/serializers");
 
 const populateConversation = (query) =>
   query
@@ -16,14 +16,64 @@ const isParticipant = (conversation, userId) =>
     (participant) => participant._id.toString() === userId,
   );
 
-const toConversationResponse = (conversation) => ({
-  _id: conversation._id,
-  participants: conversation.participants.map(usersController.toPublicUser),
-  name: conversation.name,
-  lastMessage: conversation.lastMessage,
-  createdAt: conversation.createdAt,
-  updatedAt: conversation.updatedAt,
-});
+const syncUnreadCounts = async (conversation) => {
+  if (!conversation) {
+    return conversation;
+  }
+
+  const participantIds = conversation.participants.map((participant) =>
+    participant._id ? participant._id.toString() : participant.toString(),
+  );
+  const unreadCounts = conversation.unreadCounts || [];
+  let didChange = false;
+
+  participantIds.forEach((participantId) => {
+    const hasEntry = unreadCounts.some(
+      (entry) => entry.userId.toString() === participantId,
+    );
+
+    if (!hasEntry) {
+      unreadCounts.push({
+        userId: participantId,
+        count: 0,
+      });
+      didChange = true;
+    }
+  });
+
+  conversation.unreadCounts = unreadCounts.filter((entry) =>
+    participantIds.includes(entry.userId.toString()),
+  );
+
+  if (conversation.unreadCounts.length !== unreadCounts.length) {
+    didChange = true;
+  }
+
+  if (didChange) {
+    await conversation.save();
+  }
+
+  return conversation;
+};
+
+const getUnreadCountForUser = (conversation, userId) => {
+  if (!userId) {
+    return 0;
+  }
+
+  const unreadEntry = (conversation.unreadCounts || []).find(
+    (entry) => entry.userId.toString() === userId.toString(),
+  );
+
+  return unreadEntry?.count || 0;
+};
+
+const toConversationResponse = (conversation, userId) =>
+  serializers.serializeConversation(
+    conversation,
+    userId,
+    getUnreadCountForUser,
+  );
 
 const getConversationForUser = async (conversationId, userId) => {
   const conversation = await populateConversation(
@@ -34,7 +84,7 @@ const getConversationForUser = async (conversationId, userId) => {
     return null;
   }
 
-  return conversation;
+  return syncUnreadCounts(conversation);
 };
 
 exports.createConversation = async (req, res) => {
@@ -60,22 +110,29 @@ exports.createConversation = async (req, res) => {
       );
 
       if (existingConversation) {
+        await syncUnreadCounts(existingConversation);
         return res
           .status(200)
-          .json(toConversationResponse(existingConversation));
+          .json(await toConversationResponse(existingConversation, currentUserId));
       }
     }
 
     const conversation = await Conversation.create({
       participants: participantIds,
       name,
+      unreadCounts: participantIds.map((participantId) => ({
+        userId: participantId,
+        count: 0,
+      })),
     });
 
     const populatedConversation = await populateConversation(
       Conversation.findById(conversation._id),
     );
 
-    res.status(201).json(toConversationResponse(populatedConversation));
+    res
+      .status(201)
+      .json(await toConversationResponse(populatedConversation, currentUserId));
   } catch (error) {
     res.status(500).json({
       message: "Error creating conversation",
@@ -89,8 +146,19 @@ exports.getConversations = async (req, res) => {
     const conversations = await populateConversation(
       Conversation.find({ participants: req.user._id }),
     );
+    const syncedConversations = await Promise.all(
+      conversations.map((conversation) => syncUnreadCounts(conversation)),
+    );
 
-    res.status(200).json(conversations.map(toConversationResponse));
+    res
+      .status(200)
+      .json(
+        await Promise.all(
+          syncedConversations.map((conversation) =>
+            toConversationResponse(conversation, req.user._id.toString()),
+          ),
+        ),
+      );
   } catch (error) {
     res.status(500).json({
       message: "Error fetching conversations",
@@ -114,7 +182,7 @@ exports.getConversationMessages = async (req, res) => {
       conversationId: conversation._id,
     }).sort({ createdAt: 1 });
 
-    res.status(200).json(messages);
+    res.status(200).json(await Promise.all(messages.map(serializers.serializeMessage)));
   } catch (error) {
     res.status(500).json({
       message: "Error fetching conversation messages",
@@ -154,3 +222,5 @@ exports.deleteConversation = async (req, res) => {
 
 exports.getConversationForUser = getConversationForUser;
 exports.toConversationResponse = toConversationResponse;
+exports.getUnreadCountForUser = getUnreadCountForUser;
+exports.syncUnreadCounts = syncUnreadCounts;

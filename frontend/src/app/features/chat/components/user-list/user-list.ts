@@ -12,6 +12,7 @@ import { User } from '../../../../models/user.model';
 export class UserList {
   @Input() users: User[] = [];
   @Input() currentUserId = '';
+  @Input() unreadCountsByUser: Record<string, number> = {};
   @Output() startConversation = new EventEmitter<User>();
 
   displayName(user: User): string {
@@ -59,5 +60,9 @@ export class UserList {
 
   isCurrentUser(user: User): boolean {
     return user._id === this.currentUserId;
+  }
+
+  unreadCount(user: User): number {
+    return this.unreadCountsByUser[user._id] || 0;
   }
 }

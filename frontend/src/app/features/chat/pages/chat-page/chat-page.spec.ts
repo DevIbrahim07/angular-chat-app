@@ -7,6 +7,7 @@ import { ConversationService } from '../../../../core/services/conversation.serv
 import { SocketService } from '../../../../core/services/socket-service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UsersService } from '../../../../core/services/users.service';
+import { UploadService } from '../../../../core/services/upload.service';
 
 describe('ChatPage', () => {
   let component: ChatPage;
@@ -27,6 +28,7 @@ describe('ChatPage', () => {
                 _id: 'conversation-1',
                 participants: [],
                 lastMessage: null,
+                unreadCount: 0,
                 createdAt: '2026-05-02T00:00:00.000Z',
                 updatedAt: '2026-05-02T00:00:00.000Z',
               }),
@@ -39,6 +41,7 @@ describe('ChatPage', () => {
             receiveMessage: () => EMPTY,
             joinConversation: () => undefined,
             leaveConversation: () => undefined,
+            markConversationRead: () => undefined,
             conversationUpdated: () => EMPTY,
             usersList: () => EMPTY,
             userStatusChanged: () => EMPTY,
@@ -57,6 +60,20 @@ describe('ChatPage', () => {
           provide: UsersService,
           useValue: {
             getUsers: () => of([]),
+          },
+        },
+        {
+          provide: UploadService,
+          useValue: {
+            uploadAttachment: () =>
+              of({
+                attachment: {
+                  originalName: 'file.txt',
+                  url: '/uploads/attachments/file.txt',
+                  mimeType: 'text/plain',
+                  size: 128,
+                },
+              }),
           },
         },
         {

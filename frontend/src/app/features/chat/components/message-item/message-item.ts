@@ -11,6 +11,41 @@ import { MessageModel } from '../../../../models/message.model';
 export class MessageItem {
   @Input() currentUser = '';
   @Input() message!: MessageModel;
+  previewImageUrl: string | null = null;
+  previewImageName = '';
+
+  attachmentUrl(url: string): string {
+    if (url.startsWith('http')) {
+      return url;
+    }
+
+    return `http://localhost:3000${url}`;
+  }
+
+  isImageAttachment(mimeType: string): boolean {
+    return mimeType.startsWith('image/');
+  }
+
+  openImagePreview(url: string, name: string): void {
+    this.previewImageUrl = this.attachmentUrl(url);
+    this.previewImageName = name;
+  }
+
+  closeImagePreview(): void {
+    this.previewImageUrl = null;
+    this.previewImageName = '';
+  }
+
+  async downloadAttachment(url: string, name: string): Promise<void> {
+    const response = await fetch(this.attachmentUrl(url));
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = name || 'attachment';
+    link.click();
+    URL.revokeObjectURL(objectUrl);
+  }
 
   getStatusType(): 'sent' | 'delivered' | 'read' | '' {
     switch (this.message.status) {

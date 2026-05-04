@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+export interface OutgoingMessagePayload {
+  text: string;
+  file: File | null;
+}
+
 @Component({
   selector: 'app-message-input',
   standalone: true,
@@ -9,20 +14,35 @@ import { FormsModule } from '@angular/forms';
 })
 export class MessageInput {
   message: string = '';
+  selectedFile: File | null = null;
 
-  @Output() sendMessage = new EventEmitter<string>();
+  @Output() sendMessage = new EventEmitter<OutgoingMessagePayload>();
   @Output() userTyping = new EventEmitter<void>();
   @Output() stopTyping = new EventEmitter<void>();
 
   private typingTimeout?: ReturnType<typeof setTimeout>;
 
   onSend() {
-    if (!this.message.trim()) return;
+    if (!this.message.trim() && !this.selectedFile) return;
 
-    this.sendMessage.emit(this.message);
+    this.sendMessage.emit({
+      text: this.message,
+      file: this.selectedFile,
+    });
     this.message = '';
+    this.selectedFile = null;
     this.clearTypingTimeout();
     this.stopTyping.emit();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedFile = input.files?.[0] || null;
+    input.value = '';
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile = null;
   }
 
   onInputKeydown() {

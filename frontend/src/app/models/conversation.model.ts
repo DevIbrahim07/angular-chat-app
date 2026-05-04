@@ -6,6 +6,7 @@ export interface Conversation {
   participants: User[];
   name?: string;
   lastMessage?: MessageModel | null;
+  unreadCount: number;
   createdAt: string;
   updatedAt: string;
 }
