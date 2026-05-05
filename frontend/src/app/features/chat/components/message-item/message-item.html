@@ -28,12 +28,16 @@
     @if (message.attachments?.length) {
       <div class="mt-3 grid gap-2">
         @for (attachment of message.attachments; track attachment.url) {
-          <div class="rounded-2xl border border-black/8 bg-white/70 p-2 shadow-sm">
+          <div
+            class="max-w-full overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-2 shadow-sm"
+          >
             @if (isImageAttachment(attachment.mimeType)) {
               <button
                 type="button"
                 class="block w-full cursor-pointer border-0 bg-transparent p-0 text-left"
-                (click)="openImagePreview(attachment.url, attachment.originalName, attachment.downloadUrl)"
+                (click)="
+                  openImagePreview(attachment.url, attachment.originalName, attachment.downloadUrl)
+                "
               >
                 <img
                   [src]="attachmentUrl(attachment.url)"
@@ -42,21 +46,27 @@
                 />
               </button>
             }
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="truncate text-sm font-semibold text-slate-900">
+            <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0 flex-1">
+                <div class="wrap-break-word text-sm font-semibold text-slate-900">
                   {{ attachment.originalName }}
                 </div>
                 <div class="text-xs text-slate-500">
                   {{ (attachment.size / 1024).toFixed(1) }} KB
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
                 @if (isImageAttachment(attachment.mimeType)) {
                   <button
                     type="button"
                     class="rounded-full border-0 bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-200"
-                    (click)="openImagePreview(attachment.url, attachment.originalName, attachment.downloadUrl)"
+                    (click)="
+                      openImagePreview(
+                        attachment.url,
+                        attachment.originalName,
+                        attachment.downloadUrl
+                      )
+                    "
                   >
                     View
                   </button>
@@ -125,7 +135,11 @@
         </div>
       </div>
       <div class="overflow-hidden rounded-xl bg-black/30">
-        <img [src]="previewImageUrl" [alt]="previewImageName" class="max-h-[80vh] w-full object-contain" />
+        <img
+          [src]="previewImageUrl"
+          [alt]="previewImageName"
+          class="max-h-[80vh] w-full object-contain"
+        />
       </div>
     </div>
   </div>
