@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/app-config';
 export interface UploadedAttachment {
   originalName: string;
   url: string;
+  downloadUrl?: string;
   mimeType: string;
   size: number;
   storageProvider?: 'local' | 'tigris';

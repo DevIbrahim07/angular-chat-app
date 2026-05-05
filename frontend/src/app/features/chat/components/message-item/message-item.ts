@@ -14,6 +14,7 @@ export class MessageItem {
   @Input() message!: MessageModel;
   previewImageUrl: string | null = null;
   previewImageName = '';
+  previewImageDownloadUrl: string | null = null;
 
   attachmentUrl(url: string): string {
     return resolveBackendUrl(url);
@@ -23,25 +24,27 @@ export class MessageItem {
     return mimeType.startsWith('image/');
   }
 
-  openImagePreview(url: string, name: string): void {
+  openImagePreview(url: string, name: string, downloadUrl?: string): void {
     this.previewImageUrl = this.attachmentUrl(url);
     this.previewImageName = name;
+    this.previewImageDownloadUrl = this.attachmentUrl(downloadUrl || url);
   }
 
   closeImagePreview(): void {
     this.previewImageUrl = null;
     this.previewImageName = '';
+    this.previewImageDownloadUrl = null;
   }
 
-  async downloadAttachment(url: string, name: string): Promise<void> {
-    const response = await fetch(this.attachmentUrl(url));
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
+  downloadAttachment(url: string, name: string): void {
     const link = document.createElement('a');
-    link.href = objectUrl;
+    link.href = this.attachmentUrl(url);
     link.download = name || 'attachment';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(objectUrl);
+    document.body.removeChild(link);
   }
 
   getStatusType(): 'sent' | 'delivered' | 'read' | '' {

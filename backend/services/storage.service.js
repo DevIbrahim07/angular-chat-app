@@ -157,7 +157,11 @@ const storeUploadedFile = async ({ buffer, originalName, mimeType, prefix }) => 
   return storeLocally({ buffer, originalName, mimeType, prefix });
 };
 
-const getSignedObjectUrl = async (key, downloadName = "") => {
+const getSignedObjectUrl = async (
+  key,
+  fileName = "",
+  disposition = "inline",
+) => {
   const config = getStorageConfig();
   const s3Client = getS3Client();
 
@@ -174,8 +178,8 @@ const getSignedObjectUrl = async (key, downloadName = "") => {
     new GetObjectCommand({
       Bucket: config.bucketName,
       Key: key,
-      ResponseContentDisposition: downloadName
-        ? `inline; filename="${downloadName.replace(/"/g, "")}"`
+      ResponseContentDisposition: fileName
+        ? `${disposition}; filename="${fileName.replace(/"/g, "")}"`
         : undefined,
     }),
     { expiresIn: config.signedUrlExpiresIn },

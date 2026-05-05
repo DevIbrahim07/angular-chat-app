@@ -11,7 +11,7 @@ connectDB();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "https://angular-chat-app-ten.vercel.app",
+  "https://talkora-chat.vercel.app",
   "http://localhost:4200",
   "http://127.0.0.1:4200",
 ].filter(Boolean);

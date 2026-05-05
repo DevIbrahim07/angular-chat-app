@@ -2,6 +2,9 @@
   <header class="border-b border-slate-800 bg-[#111b21] px-4 py-3 text-white sm:px-5">
     <div class="mx-auto flex w-full max-w-400 items-center justify-between gap-4">
       <div class="min-w-0">
+        <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+          Talkora
+        </p>
         <h1 class="m-0 truncate text-xl font-semibold leading-tight text-white">
           {{ currentUser()?.profile?.displayName || currentUser()?.username }}
         </h1>
@@ -130,7 +133,7 @@
         aria-labelledby="logout-dialog-title"
       >
         <h2 id="logout-dialog-title" class="m-0 text-xl font-semibold text-slate-900">
-          Log out?
+          Log out of Talkora?
         </h2>
         <p class="mb-0 mt-3 text-sm leading-6 text-slate-600">
           You will be signed out of your current session and returned to the login screen.

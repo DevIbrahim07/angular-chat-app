@@ -12,6 +12,7 @@ const resolveAvatarUrl = async (profile = {}) => {
     return storageService.getSignedObjectUrl(
       profile.avatarStorageKey,
       profile.avatarOriginalName || "avatar",
+      "inline",
     );
   }
 
@@ -37,17 +38,25 @@ const serializeUser = async (user) => {
 
 const serializeAttachment = async (attachment) => {
   let url = attachment.url;
+  let downloadUrl = attachment.url;
 
   if (attachment.storageProvider === "tigris" && attachment.storageKey) {
     url = await storageService.getSignedObjectUrl(
       attachment.storageKey,
       attachment.originalName,
+      "inline",
+    );
+    downloadUrl = await storageService.getSignedObjectUrl(
+      attachment.storageKey,
+      attachment.originalName,
+      "attachment",
     );
   }
 
   return {
     originalName: attachment.originalName,
     url,
+    downloadUrl,
     mimeType: attachment.mimeType || "application/octet-stream",
     size: attachment.size || 0,
     storageProvider: attachment.storageProvider || "local",

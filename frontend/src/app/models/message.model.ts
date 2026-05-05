@@ -6,6 +6,7 @@ export interface ReadByEntry {
 export interface MessageAttachment {
   originalName: string;
   url: string;
+  downloadUrl?: string;
   mimeType: string;
   size: number;
   storageProvider?: 'local' | 'tigris';
