@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { resolveBackendUrl } from '../../../../core/config/app-config';
-import { MessageModel } from '../../../../models/message.model';
+import { DownloadService } from '../../../../core/services/download.service';
+import { MessageAttachment, MessageModel } from '../../../../models/message.model';
 
 @Component({
   selector: 'app-message-item',
@@ -15,6 +16,9 @@ export class MessageItem {
   previewImageUrl: string | null = null;
   previewImageName = '';
   previewImageDownloadUrl: string | null = null;
+  previewAttachment: MessageAttachment | null = null;
+
+  constructor(private downloadService: DownloadService) {}
 
   attachmentUrl(url: string): string {
     return resolveBackendUrl(url);
@@ -28,23 +32,40 @@ export class MessageItem {
     this.previewImageUrl = this.attachmentUrl(url);
     this.previewImageName = name;
     this.previewImageDownloadUrl = this.attachmentUrl(downloadUrl || url);
+    this.previewAttachment =
+      this.message.attachments?.find(
+        (attachment) =>
+          attachment.originalName === name &&
+          this.attachmentUrl(attachment.url) === this.attachmentUrl(url),
+      ) || null;
   }
 
   closeImagePreview(): void {
     this.previewImageUrl = null;
     this.previewImageName = '';
     this.previewImageDownloadUrl = null;
+    this.previewAttachment = null;
   }
 
-  downloadAttachment(url: string, name: string): void {
-    const link = document.createElement('a');
-    link.href = this.attachmentUrl(url);
-    link.download = name || 'attachment';
-    link.rel = 'noopener noreferrer';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  downloadAttachment(attachment: MessageAttachment): void {
+    this.downloadService
+      .downloadAttachment({
+        originalName: attachment.originalName,
+        storageProvider: attachment.storageProvider,
+        storageKey: attachment.storageKey,
+        url: attachment.url,
+      })
+      .subscribe((blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = attachment.originalName || 'attachment';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(objectUrl);
+      });
   }
 
   getStatusType(): 'sent' | 'delivered' | 'read' | '' {

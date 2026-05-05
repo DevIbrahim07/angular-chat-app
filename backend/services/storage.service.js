@@ -189,7 +189,9 @@ const getSignedObjectUrl = async (
 module.exports = {
   attachmentsDirectory,
   avatarsDirectory,
+  getS3Client,
   getSignedObjectUrl,
+  getStorageConfig,
   isConfigured,
   localUrlFor,
   storeUploadedFile,

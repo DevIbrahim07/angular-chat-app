@@ -6,6 +6,11 @@ const { attachmentUpload } = require("../../middleware/upload");
 
 // GET /api/chat/messages
 router.get("/messages", authMiddleware, chatController.getMessages);
+router.get(
+  "/messages/attachments/download",
+  authMiddleware,
+  chatController.downloadAttachment,
+);
 router.post(
   "/messages/attachments",
   authMiddleware,
