@@ -4,6 +4,7 @@ import { MessageModel } from '../../models/message.model';
 import { Observable } from 'rxjs';
 import { User, UserStatusChange } from '../../models/user.model';
 import { Conversation } from '../../models/conversation.model';
+import { SOCKET_BASE_URL } from '../config/app-config';
 
 export interface TypingEvent {
   userId: string;
@@ -28,7 +29,7 @@ export class SocketService {
       return;
     }
 
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(SOCKET_BASE_URL, {
       auth: {
         token,
       },

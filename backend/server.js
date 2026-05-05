@@ -9,10 +9,18 @@ const connectDB = require("./config/db");
 const chatSocket = require("./modules/chat/chat.socket");
 connectDB();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://angular-chat-app-ten.vercel.app",
+  "http://localhost:4200",
+  "http://127.0.0.1:4200",
+].filter(Boolean);
+
 // socket setup
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: allowedOrigins,
+    credentials: true,
   },
 });
 

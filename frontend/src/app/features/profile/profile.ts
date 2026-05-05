@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveBackendUrl } from '../../core/config/app-config';
 import { UsersService } from '../../core/services/users.service';
 
 @Component({
@@ -108,11 +109,6 @@ export class Profile implements OnInit {
   avatarUrl(avatar?: string): string {
     const fallback = '/uploads/default-avatar.svg';
     const value = avatar || fallback;
-
-    if (value.startsWith('http') || value.startsWith('blob:')) {
-      return value;
-    }
-
-    return `http://localhost:3000${value}`;
+    return resolveBackendUrl(value);
   }
 }

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { API_BASE_URL } from '../config/app-config';
 import { AuthResponse, User } from '../../models/user.model';
 
 const TOKEN_KEY = 'chat_token';
@@ -11,7 +12,7 @@ const USER_KEY = 'chat_user';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = `${API_BASE_URL}/api/auth`;
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
   private currentUserSignal = signal<User | null>(this.readStoredUser());
 

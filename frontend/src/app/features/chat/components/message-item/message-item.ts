@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { resolveBackendUrl } from '../../../../core/config/app-config';
 import { MessageModel } from '../../../../models/message.model';
 
 @Component({
@@ -15,11 +16,7 @@ export class MessageItem {
   previewImageName = '';
 
   attachmentUrl(url: string): string {
-    if (url.startsWith('http')) {
-      return url;
-    }
-
-    return `http://localhost:3000${url}`;
+    return resolveBackendUrl(url);
   }
 
   isImageAttachment(mimeType: string): boolean {

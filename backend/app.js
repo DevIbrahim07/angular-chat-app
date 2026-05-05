@@ -8,8 +8,26 @@ const conversationsRoutes = require("./modules/conversations/conversations.route
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://angular-chat-app-ten.vercel.app",
+  "http://localhost:4200",
+  "http://127.0.0.1:4200",
+].filter(Boolean);
+
 // middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

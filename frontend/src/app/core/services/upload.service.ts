@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/app-config';
 
 export interface UploadedAttachment {
   originalName: string;
@@ -16,7 +17,7 @@ export interface UploadedAttachment {
   providedIn: 'root',
 })
 export class UploadService {
-  private apiUrl = 'http://localhost:3000/api/messages/attachments';
+  private apiUrl = `${API_BASE_URL}/api/messages/attachments`;
 
   constructor(private http: HttpClient) {}
 

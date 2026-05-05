@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/app-config';
 import { Conversation } from '../../models/conversation.model';
 import { MessageModel } from '../../models/message.model';
 
@@ -8,7 +9,7 @@ import { MessageModel } from '../../models/message.model';
   providedIn: 'root',
 })
 export class ConversationService {
-  private apiUrl = 'http://localhost:3000/api/conversations';
+  private apiUrl = `${API_BASE_URL}/api/conversations`;
 
   constructor(private http: HttpClient) {}
 

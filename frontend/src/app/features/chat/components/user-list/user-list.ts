@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { resolveBackendUrl } from '../../../../core/config/app-config';
 import { User } from '../../../../models/user.model';
 
 @Component({
@@ -33,12 +34,7 @@ export class UserList {
 
   avatarUrl(user: User): string {
     const avatar = user.profile?.avatar || '/uploads/default-avatar.svg';
-
-    if (avatar.startsWith('http')) {
-      return avatar;
-    }
-
-    return `http://localhost:3000${avatar}`;
+    return resolveBackendUrl(avatar);
   }
 
   openConversation(user: User): void {

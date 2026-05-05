@@ -16,6 +16,7 @@ import {
   OutgoingMessagePayload,
 } from '../../components/message-input/message-input';
 import { UploadService } from '../../../../core/services/upload.service';
+import { resolveBackendUrl } from '../../../../core/config/app-config';
 
 @Component({
   selector: 'app-chat-page',
@@ -410,12 +411,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
   avatarUrl(user: User | undefined): string {
     const avatar = user?.profile?.avatar || '/uploads/default-avatar.svg';
-
-    if (avatar.startsWith('http')) {
-      return avatar;
-    }
-
-    return `http://localhost:3000${avatar}`;
+    return resolveBackendUrl(avatar);
   }
 
   statusLabel(user: User | undefined): string {
