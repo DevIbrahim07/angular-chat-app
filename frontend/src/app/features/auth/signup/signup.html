@@ -18,6 +18,19 @@
 
         <form class="grid gap-4" (ngSubmit)="onSubmit()">
           <label class="grid gap-2 text-sm font-semibold text-slate-700">
+            <span>Phone number</span>
+            <input
+              type="tel"
+              name="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              autocomplete="tel"
+              required
+              placeholder="+923001234567"
+              class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
+
+          <label class="grid gap-2 text-sm font-semibold text-slate-700">
             <span>Username</span>
             <input
               type="text"
@@ -58,6 +71,21 @@
             />
           </label>
 
+          @if (otpSent()) {
+            <label class="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>OTP code</span>
+              <input
+                type="text"
+                name="otpCode"
+                [(ngModel)]="otpCode"
+                autocomplete="one-time-code"
+                required
+                placeholder="Enter the code sent to your phone"
+                class="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+            </label>
+          }
+
           @if (errorMessage()) {
             <p
               class="m-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
@@ -66,12 +94,28 @@
             </p>
           }
 
+          @if (infoMessage()) {
+            <p
+              class="m-0 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+            >
+              {{ infoMessage() }}
+            </p>
+          }
+
           <button
             type="submit"
             [disabled]="isSubmitting()"
             class="rounded-lg border-0 bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {{ isSubmitting() ? 'Creating...' : 'Create account' }}
+            {{
+              isSubmitting()
+                ? otpSent()
+                  ? 'Verifying...'
+                  : 'Sending code...'
+                : otpSent()
+                  ? 'Verify and create account'
+                  : 'Send verification code'
+            }}
           </button>
         </form>
 

@@ -4,9 +4,9 @@ import { EMPTY, of } from 'rxjs';
 
 import { ChatPage } from './chat-page';
 import { ConversationService } from '../../../../core/services/conversation.service';
+import { ContactsService } from '../../../../core/services/contacts.service';
 import { SocketService } from '../../../../core/services/socket-service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { UsersService } from '../../../../core/services/users.service';
 import { UploadService } from '../../../../core/services/upload.service';
 
 describe('ChatPage', () => {
@@ -57,9 +57,22 @@ describe('ChatPage', () => {
           },
         },
         {
-          provide: UsersService,
+          provide: ContactsService,
           useValue: {
-            getUsers: () => of([]),
+            getContacts: () => of([]),
+            createContact: () =>
+              of({
+                message: 'Contact added successfully.',
+                contact: {
+                  _id: 'contact-1',
+                  contactName: 'Bilal',
+                  phoneNumber: '+923001234567',
+                  source: 'manual',
+                  matchedUser: null,
+                  createdAt: '2026-05-02T00:00:00.000Z',
+                  updatedAt: '2026-05-02T00:00:00.000Z',
+                },
+              }),
           },
         },
         {

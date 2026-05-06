@@ -26,6 +26,8 @@ const serializeUser = async (user) => {
     _id: user._id,
     email: user.email,
     username: user.username,
+    phoneNumber: user.phoneNumber,
+    phoneVerified: Boolean(user.phoneVerified),
     status: user.status,
     lastSeen: user.lastSeen,
     profile: {

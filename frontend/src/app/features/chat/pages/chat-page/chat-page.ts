@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Conversation } from '../../../../models/conversation.model';
 import { MessageModel } from '../../../../models/message.model';
 import { User } from '../../../../models/user.model';
+import { Contact } from '../../../../models/contact.model';
 import { ConversationService } from '../../../../core/services/conversation.service';
 import { SocketService } from '../../../../core/services/socket-service';
 import { FormsModule } from '@angular/forms';
@@ -11,12 +12,12 @@ import { MessageInput } from '../../components/message-input/message-input';
 import { UserList } from '../../components/user-list/user-list';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
-import { UsersService } from '../../../../core/services/users.service';
 import {
   OutgoingMessagePayload,
 } from '../../components/message-input/message-input';
 import { UploadService } from '../../../../core/services/upload.service';
 import { resolveBackendUrl } from '../../../../core/config/app-config';
+import { ContactsService } from '../../../../core/services/contacts.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -26,11 +27,14 @@ import { resolveBackendUrl } from '../../../../core/config/app-config';
 })
 export class ChatPage implements OnInit, OnDestroy {
   messages = signal<MessageModel[]>([]);
-  users = signal<User[]>([]);
+  contacts = signal<Contact[]>([]);
   conversations = signal<Conversation[]>([]);
   activeConversationId = signal('');
   typingUsers = signal<Set<string>>(new Set()); // Track users typing in current conversation
   showLogoutModal = signal(false);
+  isSavingContact = signal(false);
+  contactFeedback = signal('');
+  contactFeedbackTone = signal<'success' | 'error'>('success');
   currentUser: AuthService['currentUser'];
   private subscriptions = new Subscription();
   private messagesSubscription?: Subscription;
@@ -42,7 +46,7 @@ export class ChatPage implements OnInit, OnDestroy {
     private conversationService: ConversationService,
     private socketService: SocketService,
     private authService: AuthService,
-    private usersService: UsersService,
+    private contactsService: ContactsService,
     private uploadService: UploadService,
     private route: ActivatedRoute,
     private router: Router,
@@ -59,11 +63,7 @@ export class ChatPage implements OnInit, OnDestroy {
     }
 
     this.loadConversations();
-    this.subscriptions.add(
-      this.usersService.getUsers().subscribe((users) => {
-        this.users.set(users);
-      }),
-    );
+    this.loadContacts();
 
     this.socketService.connect(token);
     this.requestNotificationPermission();
@@ -102,16 +102,8 @@ export class ChatPage implements OnInit, OnDestroy {
     );
 
     this.subscriptions.add(
-      this.socketService.usersList().subscribe((users) => {
-        this.users.set(users);
-      }),
-    );
-
-    this.subscriptions.add(
       this.socketService.userStatusChanged().subscribe((statusChange) => {
-        this.users.update((users) =>
-          users.map((user) => (user._id === statusChange.userId ? statusChange.user : user)),
-        );
+        this.patchUserStatus(statusChange.user);
       }),
     );
 
@@ -167,8 +159,6 @@ export class ChatPage implements OnInit, OnDestroy {
         );
       }),
     );
-
-    this.socketService.requestUsersList();
   }
 
   /**
@@ -215,6 +205,14 @@ export class ChatPage implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.conversationService.getConversations().subscribe((conversations) => {
         this.conversations.set(conversations);
+      }),
+    );
+  }
+
+  loadContacts(): void {
+    this.subscriptions.add(
+      this.contactsService.getContacts().subscribe((contacts) => {
+        this.contacts.set(contacts);
       }),
     );
   }
@@ -266,7 +264,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
     const typingUserNames = typingUserIds
       .map((userId) => {
-        const user = this.users().find((u) => u._id === userId);
+        const user = this.findKnownUserById(userId);
         return user?.profile?.displayName || user?.username || 'User';
       })
       .filter((name) => name);
@@ -326,15 +324,38 @@ export class ChatPage implements OnInit, OnDestroy {
     });
   }
 
-  startConversation(user: User): void {
+  startConversation(contact: Contact): void {
+    if (!contact.matchedUser) {
+      return;
+    }
+
     this.conversationService
       .createConversation({
-        participantIds: [user._id],
+        participantIds: [contact.matchedUser._id],
       })
       .subscribe((conversation) => {
         this.upsertConversation(conversation);
         this.router.navigate(['/chat', conversation._id]);
       });
+  }
+
+  addContact(payload: { contactName: string; phoneNumber: string }): void {
+    this.isSavingContact.set(true);
+    this.contactFeedback.set('');
+
+    this.contactsService.createContact(payload).subscribe({
+      next: ({ message, contact }) => {
+        this.isSavingContact.set(false);
+        this.contactFeedbackTone.set('success');
+        this.contactFeedback.set(message);
+        this.upsertContact(contact);
+      },
+      error: (error) => {
+        this.isSavingContact.set(false);
+        this.contactFeedbackTone.set('error');
+        this.contactFeedback.set(error.error?.message || 'Unable to save contact right now.');
+      },
+    });
   }
 
   backToUsers(): void {
@@ -427,6 +448,68 @@ export class ChatPage implements OnInit, OnDestroy {
       this.scrollContainer.nativeElement.scrollTop =
         this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  private findKnownUserById(userId: string): User | undefined {
+    const currentUser = this.currentUser();
+
+    if (currentUser?._id === userId) {
+      return currentUser;
+    }
+
+    const contactUser = this.contacts()
+      .map((contact) => contact.matchedUser)
+      .find((user) => user?._id === userId);
+
+    if (contactUser) {
+      return contactUser;
+    }
+
+    return this.conversations()
+      .flatMap((conversation) => conversation.participants)
+      .find((participant) => participant._id === userId);
+  }
+
+  private patchUserStatus(nextUser: User): void {
+    this.contacts.update((contacts) =>
+      contacts.map((contact) =>
+        contact.matchedUser?._id === nextUser._id
+          ? { ...contact, matchedUser: nextUser }
+          : contact,
+      ),
+    );
+
+    this.conversations.update((conversations) =>
+      conversations.map((conversation) => ({
+        ...conversation,
+        participants: conversation.participants.map((participant) =>
+          participant._id === nextUser._id ? nextUser : participant,
+        ),
+      })),
+    );
+  }
+
+  private upsertContact(nextContact: Contact): void {
+    this.contacts.update((contacts) => {
+      const nextMatchedUserId = nextContact.matchedUser?._id || '';
+      const filteredContacts = contacts.filter((contact) => {
+        if (contact._id === nextContact._id) {
+          return false;
+        }
+
+        if (
+          nextMatchedUserId &&
+          contact.matchedUser?._id &&
+          contact.matchedUser._id === nextMatchedUserId
+        ) {
+          return false;
+        }
+
+        return contact.phoneNumber !== nextContact.phoneNumber;
+      });
+
+      return [nextContact, ...filteredContacts];
+    });
   }
 
   private requestNotificationPermission(): void {

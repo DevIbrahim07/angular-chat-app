@@ -14,8 +14,12 @@ export class Signup {
   email = '';
   username = '';
   password = '';
+  phoneNumber = '';
+  otpCode = '';
   errorMessage = signal('');
+  infoMessage = signal('');
   isSubmitting = signal(false);
+  otpSent = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -28,23 +32,51 @@ export class Signup {
     }
 
     this.errorMessage.set('');
+    this.infoMessage.set('');
     this.isSubmitting.set(true);
 
+    if (!this.otpSent()) {
+      this.authService
+        .sendOtp({
+          phoneNumber: this.phoneNumber,
+          purpose: 'signup',
+        })
+        .subscribe({
+          next: (response) => {
+            this.isSubmitting.set(false);
+            this.otpSent.set(true);
+            this.infoMessage.set(
+              response.message || 'Verification code sent to your phone number.',
+            );
+          },
+          error: (error) => {
+            this.isSubmitting.set(false);
+            this.errorMessage.set(
+              error.error?.message || 'Unable to send OTP. Please try again.',
+            );
+          },
+        });
+
+      return;
+    }
+
     this.authService
-      .signup({
+      .verifySignupOtp({
         email: this.email,
         username: this.username,
         password: this.password,
+        phoneNumber: this.phoneNumber,
+        code: this.otpCode,
       })
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl('/chat');
         },
         error: (error) => {
           this.isSubmitting.set(false);
           this.errorMessage.set(
-            error.error?.message || 'Unable to create account. Please try again.',
+            error.error?.message || 'Unable to verify OTP. Please try again.',
           );
         },
       });

@@ -2,6 +2,8 @@ export interface User {
   _id: string;
   email: string;
   username: string;
+  phoneNumber?: string | null;
+  phoneVerified?: boolean;
   status: 'online' | 'offline';
   lastSeen: string | null;
   profile?: {

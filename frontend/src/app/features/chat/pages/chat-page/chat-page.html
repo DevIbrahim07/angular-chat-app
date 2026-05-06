@@ -37,9 +37,13 @@
         [class.hidden]="activeConversationId()"
       >
         <app-user-list
-          [users]="users()"
-          [currentUserId]="currentUser()?._id || ''"
+          [currentUser]="currentUser()"
+          [contacts]="contacts()"
           [unreadCountsByUser]="unreadCountsByUser()"
+          [isSavingContact]="isSavingContact()"
+          [contactFeedback]="contactFeedback()"
+          [contactFeedbackTone]="contactFeedbackTone()"
+          (addContact)="addContact($event)"
           (startConversation)="startConversation($event)"
         ></app-user-list>
       </aside>

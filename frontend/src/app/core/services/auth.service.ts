@@ -21,13 +21,46 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  signup(payload: { email: string; username: string; password: string }): Observable<AuthResponse> {
+  signup(payload: {
+    email: string;
+    username: string;
+    password: string;
+    phoneNumber?: string;
+  }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, payload);
+  }
+
+  sendOtp(payload: {
+    phoneNumber: string;
+    purpose: 'signup' | 'login';
+  }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/send-otp`, payload);
+  }
+
+  verifySignupOtp(payload: {
+    email: string;
+    username: string;
+    password: string;
+    phoneNumber: string;
+    code: string;
+  }): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/verify-signup-otp`, payload)
+      .pipe(tap((response) => this.storeSession(response)));
   }
 
   login(payload: { email: string; password: string }): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/login`, payload)
+      .pipe(tap((response) => this.storeSession(response)));
+  }
+
+  verifyLoginOtp(payload: {
+    phoneNumber: string;
+    code: string;
+  }): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/verify-login-otp`, payload)
       .pipe(tap((response) => this.storeSession(response)));
   }
 

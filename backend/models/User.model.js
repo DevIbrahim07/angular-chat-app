@@ -23,6 +23,17 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
       select: false,
     },
+    phoneNumber: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      default: null,
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ["online", "offline"],

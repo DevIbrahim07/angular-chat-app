@@ -5,6 +5,7 @@ const chatRoutes = require("./modules/chat/chat.routes");
 const authRoutes = require("./modules/auth/auth.routes");
 const usersRoutes = require("./modules/users/users.routes");
 const conversationsRoutes = require("./modules/conversations/conversations.routes");
+const contactsRoutes = require("./modules/contacts/contacts.routes");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api", chatRoutes);
 app.use("/api", authRoutes);
 app.use("/api", usersRoutes);
 app.use("/api", conversationsRoutes);
+app.use("/api", contactsRoutes);
 
 // test route
 app.get("/", (req, res) => {
