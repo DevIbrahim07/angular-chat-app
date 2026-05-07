@@ -2,11 +2,13 @@
   <section
     class="mx-auto grid w-full max-w-5xl overflow-hidden rounded-lg border border-slate-800 bg-[#111b21] shadow-2xl lg:grid-cols-[1.05fr_0.95fr]"
   >
-    <div class="hidden bg-[linear-gradient(160deg,#103529_0%,#111b21_55%,#0b141a_100%)] p-10 text-white lg:block">
+    <div
+      class="hidden bg-[linear-gradient(160deg,#103529_0%,#111b21_55%,#0b141a_100%)] p-10 text-white lg:block"
+    >
       <p class="m-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
         Talkora
       </p>
-      <h1 class="mt-4 text-4xl font-semibold leading-tight">Welcome back to Talkora</h1>
+      <h1 class="mt-4 text-4xl font-semibold leading-tight">Welcome back to Talkora website</h1>
       <p class="mt-4 max-w-md text-sm leading-7 text-slate-300">
         A calmer, cleaner chat space with live presence, modern messaging, and a layout built to
         feel natural every day.
@@ -22,10 +24,14 @@
     <div class="bg-[#f0f2f5] p-5 sm:p-8 lg:p-10">
       <div class="mx-auto w-full max-w-md">
         <div class="mb-8">
-          <p class="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
+          <p
+            class="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700"
+          >
             Talkora
           </p>
-          <h1 class="m-0 text-3xl font-semibold leading-tight text-slate-900">Log in to continue</h1>
+          <h1 class="m-0 text-3xl font-semibold leading-tight text-slate-900">
+            Log in to continue
+          </h1>
           <p class="mt-2 text-sm leading-6 text-slate-500">
             Your conversations are waiting for you.
           </p>
@@ -112,7 +118,9 @@
           }
 
           @if (errorMessage()) {
-            <p class="m-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p
+              class="m-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
               {{ errorMessage() }}
             </p>
           }
